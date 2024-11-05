@@ -14,9 +14,6 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Nvidia Drivers
-  # hardware.nvidia.package = config.boot.kernalPackages.nvidiaPackages.producation;
-
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -69,14 +66,9 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-  programs.git = {
-	enable = true;
-	#extraConfig = {
-	#	credential.helper = "${
-	#		pkgs.git.override { withLibsecret = true; }
-	#	}/bin/git-credential-libsecret";
-	#};
-  };
+  # flatpak
+  services.flatpak.enable = true;
+  # $```flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo```
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.vulbyte = {
@@ -84,26 +76,89 @@
     description = "vulbyte";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-      firefox
       kate
-      neovim
-      pciutils
+      qpwgraph
       thunderbird
-      usbutils
-      vim
-      yakuake
+      vulkan-tools
     ];
   };
+
+  # Install firefox.
+  programs.firefox.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # install steam
+  programs.steam.enable = true;
+  programs.steam.gamescopeSession.enable = true;
+  # proton optimization cluster
+  # environment.systemPackages = with pkgss; [
+  # ];
+
+  # helps perf
+  # IN GENERAL UNDER STEAM, ADD LAUNCH OPTION:
+  # ```gamemoderun %command%```
+  programs.gamemode.enable = true;
+
+  # open gl for stuff
+  hardware.opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+  };
+
+  services.xserver.videoDrivers = ["nvidia"];
+  hardware.nvidia.modesetting.enable = true;
+
+  #sync mode gpu for high perf bad energy savings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  #hardware.nvidia.prime.nvidiaBusId = "0000:10:00.0"; # lspci | grep -i vga
+  # ALL THIS IS FUCKEY WUCKEY 
+  # to find pci: $ ```lspci -a | grep -i ' VGA '```
+  #     hardware.nvidia.prime = {
+  #     # UNCOMMENT HERE FOR SNYC (GPU ALWAYS RUNNING)
+  #       sync.enable = true;
+  #       # note: only semi-colon the last
+  #               # tip: "lspci | grep ' VGA '"
+  #       # integrated
+  #       # amdgpuBusId = "PCI::30:00";
+  #               # intelBusId = "PCI:0:0.0"
+  #       # dedicated
+  #       nvidiaBusId = "PCI:10:0:0";
+
+
+  #       UNCOMMENT HERE FOR OFFLOAD (better batt, worse perf)
+  #	offload = {
+  #		enable = true;
+  # 		enableOffloadCmd = true;
+# 		};
+#     };
+
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  	vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  	wget
+    bottles				# bottles
+    git					# $ ```git```
+    # heroic				# for epic games stuff
+    pkgs.libgccjit			# $ ```gcc``` and gang
+    lshw				#
+    pciutils				# lspci and gang
+    protonup				# $ ```protonup``` (comments #2024-11-01-afd is the dir)
+    stow				# $ ```stow```
+    lutris				# $ ```lutris```
+    mangohud				# steam > general > launch options > ```mangohud %command%```
+    neovim				# $ ```nvim```
+    pkgs.nodePackages_latest.nodejs 	# $ ```node```
+    vim 				# $ ```vim```
+    wezterm 				# $ ```wezterm```
+    wget				# $ ```wget```
   ];
+
+#2024-11-01-afd
+  environment.sessionVariables = {
+	STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/user/.steam/root/compatibilitytools.d";
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -130,6 +185,6 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.05"; # Did you read the comment?
+  system.stateVersion = "23.11"; # Did you read the comment?
 
 }
